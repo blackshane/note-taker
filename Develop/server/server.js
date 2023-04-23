@@ -10,23 +10,25 @@ const path = require('path');
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
-// For serving up HTML files. 
-app.use(express.static('public')); 
+// For serving up  files in the 'public' folder. 
+app.use(express.static(path.join(__dirname, 'public')));
 
-// Route for index.html
-app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, '../../Develop/public/index.html'));
+// GET route for api/notes endpoint.
+app.get('/api/notes', (req, res) => res.json(data));
+
+// POST route for api/notes endpoint.
+app.post('/api/notes', (req, res) => {
+  const newNote = req.body;
+  data.push(newNote);
+  fs.writeFile(path.join(__dirname, '../db/db.json'), JSON.stringify(data), err => {
+    if (err) throw err;
+    res.json(newNote);
   });
+});
 
-// Route for notes.html
-app.get('/notes', (req, res) => {
-    res.sendFile(path.join(__dirname, '../../Develop/public/notes.html'));
-    });
-
-app.get('.api/notes', (req, res) => res.json(data));
-
-
-  
 app.listen(PORT, () =>
 console.log(`Example app listening at http://localhost:${PORT}`)
 );
+ 
+
+// cd into DEVELOP before npm start so it can find package-json file.  
