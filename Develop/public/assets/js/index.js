@@ -1,15 +1,18 @@
+
+
 let noteTitle;
 let noteText;
 let saveNoteBtn;
 let newNoteBtn;
 let noteList;
 
-if (window.location.pathname === '/notes') {
+if (window.location.pathname === '/notes.html') {
   noteTitle = document.querySelector('.note-title');
   noteText = document.querySelector('.note-textarea');
   saveNoteBtn = document.querySelector('.save-note');
   newNoteBtn = document.querySelector('.new-note');
   noteList = document.querySelectorAll('.list-container .list-group');
+
 }
 
 // Show an element
@@ -67,15 +70,27 @@ const renderActiveNote = () => {
 };
 
 const handleNoteSave = () => {
+  console.log('handleNoteSave working')
   const newNote = {
     title: noteTitle.value,
     text: noteText.value,
   };
-  saveNote(newNote).then(() => {
-    getAndRenderNotes();
-    renderActiveNote();
-  });
+  saveNote(newNote)
+    .then(() => {
+      noteTitle.value = '';
+      noteText.value = '';
+      getNotes()
+        .then((res) => renderNoteList(res))
+        .catch((error) => {
+          console.error('Error occurred while retrieving notes:', error);
+        });
+      renderActiveNote();
+    })
+    .catch((error) => {
+      console.error('Error occurred while saving note:', error);
+    });
 };
+
 
 // Delete the clicked note
 const handleNoteDelete = (e) => {
@@ -118,6 +133,7 @@ const handleRenderSaveBtn = () => {
 
 // Render the list of note titles
 const renderNoteList = async (notes) => {
+  console.log('renderNoteList called with notes:', notes);
   let jsonNotes = await notes.json();
   if (window.location.pathname === '/notes') {
     noteList.forEach((el) => (el.innerHTML = ''));
@@ -165,15 +181,24 @@ const renderNoteList = async (notes) => {
     noteListItems.push(li);
   });
 
-  if (window.location.pathname === '/notes') {
+  if (window.location.pathname === '/notes.html') {
     noteListItems.forEach((note) => noteList[0].append(note));
   }
 };
 
 // Gets notes from the db and renders them to the sidebar
-const getAndRenderNotes = () => getNotes().then(renderNoteList);
+const getAndRenderNotes = () => {
+  getNotes()
+    .then((notes) => {
+      console.log('getNotes returned with notes:', notes);
+    renderNoteList(notes);
+    })
+    .catch((error) => {
+      console.error('Error occurred while getting and rendering notes:', error);
+    });
+};
 
-if (window.location.pathname === '/notes') {
+if (window.location.pathname === '/notes.html') {
   saveNoteBtn.addEventListener('click', handleNoteSave);
   newNoteBtn.addEventListener('click', handleNewNoteView);
   noteTitle.addEventListener('keyup', handleRenderSaveBtn);
@@ -181,5 +206,6 @@ if (window.location.pathname === '/notes') {
 }
 
 getAndRenderNotes()
+
 
 
